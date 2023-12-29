@@ -1,0 +1,299 @@
+<?php
+session_start();
+
+if (!isset($_SESSION['status']) || $_SESSION['status'] !== 'login') {
+    header("Location: login.php");
+    exit();
+}
+
+$id_user = $_SESSION['id_user'];
+include_once('auth/koneksi.php');
+
+$ShippingPrice=5000;
+?>
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <title>Checkout</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!--===============================================================================================-->
+    <link rel="icon" type="image/png" href="images/icons/favicon.ico" />
+    <!--===============================================================================================-->
+    <link rel="stylesheet" type="text/css" href="vendor/bootstrap/css/bootstrap.min.css">
+    <!--===============================================================================================-->
+    <link rel="stylesheet" type="text/css" href="fonts/font-awesome-4.7.0/css/font-awesome.min.css">
+    <!--===============================================================================================-->
+    <link rel="stylesheet" type="text/css" href="fonts/iconic/css/material-design-iconic-font.min.css">
+    <!--===============================================================================================-->
+    <link rel="stylesheet" type="text/css" href="vendor/animate/animate.css">
+    <!--===============================================================================================-->
+    <link rel="stylesheet" type="text/css" href="vendor/css-hamburgers/hamburgers.min.css">
+    <!--===============================================================================================-->
+    <link rel="stylesheet" type="text/css" href="vendor/animsition/css/animsition.min.css">
+    <!--===============================================================================================-->
+    <link rel="stylesheet" type="text/css" href="vendor/select2/select2.min.css">
+    <!--===============================================================================================-->
+    <link rel="stylesheet" type="text/css" href="vendor/daterangepicker/daterangepicker.css">
+    <!--===============================================================================================-->
+    <link rel="stylesheet" type="text/css" href="css/util.css">
+    <link rel="stylesheet" type="text/css" href="css/main.css">
+    <link rel="stylesheet" type="text/css" href="css/checkout.css">
+    <!--===============================================================================================-->
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <script>
+        function SetShippingPrice() {
+            var deliverySelect = document.getElementById("delivery-select");
+            var shippingPrice = document.getElementById("shipping-price");
+
+            if (deliverySelect.value === "standard") {
+                shippingPrice.innerHTML = "5000";
+            } else if (deliverySelect.value === "express") {
+                shippingPrice.innerHTML = "0";
+            }
+
+            updateTotalPayment();
+        }
+
+        function updateTotalPayment() {
+            var shippingPrice = parseInt(document.getElementById("shipping-price").innerHTML);
+            var totalHarga = parseInt(<?php echo $totalHarga; ?>);
+            var totalPayment = totalHarga + shippingPrice;
+            document.getElementById("total-payment").innerHTML = totalPayment;
+        }
+    </script>
+
+<!-- chat crisp -->
+    <script type="text/javascript">window.$crisp=[];window.CRISP_WEBSITE_ID="70b23ffb-4861-41bd-912d-733680446e18";(function(){d=document;s=d.createElement("script");s.src="https://client.crisp.chat/l.js";s.async=1;d.getElementsByTagName("head")[0].appendChild(s);})();</script>
+</head>
+
+<body style="overflow: auto;">
+    <div class="limiter">
+        <div class="container-login100" style="background-image: url('images/bg-01.jpg');">
+            <div class="wrap-login100 p-l-55 p-r-55 p-t-65 p-b-54">
+                <form class="login100-form validate-form" action="auth/aksi.php" method="post">
+                    <span class="login100-form-title p-b-49">
+						Check Out
+					</span>
+
+                    <div class="product-list" style="max-height: 390px;">
+                        <div class="container">
+                            <h3>Shipping Address</h3>
+                            <form>
+                                <label for="name">Name :</label>
+                                <input type="text" id="name" name="name" required>
+                                
+                                <label for="phone">Phone Number :</label>
+                                <input type="text" id="phone" name="phone" required>
+                    
+                                <label for="address">Address :</label>
+                                <input type="text" id="address" name="address" required>
+ 
+                            <br><br><h3>Product List</h3>
+                                    <?php
+                                    $items = isset($_GET['items']) ? $_GET['items'] : '';
+                                    $decodedItems = json_decode(urldecode($items));
+
+                                    if (!empty($decodedItems)) {
+                                        global $mysqli;
+
+                                        $idKeranjangString = "'" . implode("','", $decodedItems) . "'";
+
+                                        $query="SELECT * FROM tb_keranjang INNER JOIN tb_obat ON tb_keranjang.kode_obat = tb_obat.kode_obat WHERE id_user='$id_user' AND id_keranjang IN ($idKeranjangString) AND status = 'belum dibeli'";
+                                        $result=$mysqli->query($query);
+                                        $totalHarga = 0;
+                                        if ($result->num_rows > 0) {
+                                            while ($row = $result->fetch_assoc()) {
+                                                $harga = $row['harga_obat'] * $row['jml_item'];
+                                                $totalHarga = $totalHarga + $harga;
+                                                ?>
+                                                <div class="product-card" style="align-items: start;">
+                                                <div class="product-box" style="align-items: start;">
+
+                                                    <div class="product-image" style="align-items: start;">
+                                                        <img src="gambar/<?php echo $row['kode_obat']; ?>.jpg">
+                                                    </div>
+
+                                                    <div class="product-details">
+                                                        <div class="product-name" style="text-transform: Capitalize;"><?php echo $row['nama_obat']; ?></div>
+                                                        <div class="product-price">Rp.&nbsp;<?php echo $row['harga_obat']; ?></div>
+                                                        <div class="product-quantity">x <?php $jumlah_item = $row['jml_item']; echo $jumlah_item; ?></div> 
+                                                    </div>
+                                                </div>
+                                                </div>
+                                                <input type="hidden" name="kodeObat[]" value="<?php echo $row['kode_obat']?>">
+                                                <input type="hidden" name="jmlItem[]" value="<?php echo $row['jml_item']?>">
+                                                <input type="hidden" name="hargaObat[]" value="<?php echo $row['harga_obat']?>">
+                                                <input type="hidden" name="idCart[]" value="<?php echo $row['id_keranjang']?>">
+                                                <?php
+                                            }
+                                        } 
+
+                                        // $mysqli->close();
+                                        }
+                                        else if(isset($_GET['data'])){
+                                            
+                                            $data = unserialize(base64_decode($_GET['data']));
+                                        
+                                            // data dari detail obat
+                                            $kode_obat = $data['kode_obat'];
+                                            $jumlah_item = $data['jumlah'];
+                                            global $mysqli;
+
+                                            $query="SELECT * FROM tb_obat WHERE kode_obat='$kode_obat'";
+                                            $result=$mysqli->query($query);
+                                            $totalHarga = 0;
+                                            if ($result->num_rows > 0) {
+                                                while ($row = $result->fetch_assoc()) {
+                                                    $harga = $row['harga_obat'] * $jumlah_item;
+                                                    $totalHarga = $totalHarga + $harga;
+                                                    ?>
+                                                    <div class="product-card" style="align-items: start;">
+                                                    <div class="product-box" style="align-items: start;">
+
+                                                        <div class="product-image" style="align-items: start;">
+                                                            <img src="gambar/<?php echo $row['kode_obat']; ?>.jpg">
+                                                        </div>
+
+                                                        <div class="product-details">
+                                                            <div class="product-name" style="text-transform: Capitalize;"><?php echo $row['nama_obat']; ?></div>
+                                                            <div class="product-price">Rp.&nbsp;<?php echo $row['harga_obat']; ?></div>
+                                                            <div class="product-quantity">x <?php echo $jumlah_item; ?></div> 
+                                                        </div>
+                                                    </div>
+                                                    </div>
+                                                    <input type="hidden" name="kodeObat[]" value="<?php echo $row['kode_obat']?>">
+                                                    <input type="hidden" name="jmlItem[]" value="<?php echo $jumlah_item?>">
+                                                    <input type="hidden" name="hargaObat[]" value="<?php echo $row['harga_obat']?>">
+                                                    <input type="hidden" name="id_user" value="<?php echo $id_user?>">
+                                                    <input type="hidden" name="idCart[]" value="0">
+                                                    
+                                                    <?php
+                                                }
+                                            } 
+                                            // $mysqli->close();
+                                        }
+                                        ?>
+                                    
+                            
+                    
+                            <br><h3>Shipping Method</h3>
+                            <select name="delivery" id="delivery-select">
+                                <option value="standard">Delivered</option>
+                                <option value="express">Take A Place</option>
+                            </select>
+
+                            <br><br><h3>Payment Method</h3>
+                            <select name="payment" id="payment-select">
+                                <option value="bank_transfer">Transfer Bank</option>
+                                <option value="cod">Cash On Delivery</option>
+                                <option value="e-wallet">E-Wallet</option>
+                            </select>
+                        </div>
+                    </div>
+                 
+                    <div class="payment-details">
+                    <center><b><h4>Payment Details</h4></b></center>
+                    <table>                                 
+                        <tr>
+                            <td>Product Subtotals :</td>
+                            <td><?php echo $totalHarga; ?></td>
+                        </tr>
+                        <tr>
+                            <td>Shipping Subtotal :</td>
+                            <td><span id="shipping-price"><?php echo $ShippingPrice; ?></span></td>
+                        </tr>
+                        <tr class="total-row">
+                            <td>Total Payment :</td>
+                            <td><span id="total-payment"><?php echo $totalHarga + $ShippingPrice; ?></span></td>
+                        </tr>
+                    </table>
+                    </div>
+                    <input type="hidden" name="hidden-shipping-price" id="hidden-shipping-price" value="<?php echo $ShippingPrice; ?>">
+                    <input type="hidden" name="harga-per-satuan" value="<?php echo $totalHarga; ?>">
+                    <input type="hidden" name="id_user" value="<?php echo $id_user; ?>">
+                    <script language="javascript">
+                        
+                        
+                        
+                    </script>
+                    <center><button type="submit" name="proses" value="transaksi" class="btn btn-primary" style="width: 150px; margin-bottom: 1%;">Buy</button></center>
+                </form>  
+                
+                <script> 
+                    function SetShippingPrice() {
+                        var deliverySelect = document.getElementById("delivery-select");
+                        var shippingPrice = document.getElementById("shipping-price");
+
+                        if (deliverySelect.value === "standard") {
+                            shippingPrice.innerHTML = "5000";
+                        } else if (deliverySelect.value === "express") {
+                            shippingPrice.innerHTML = "0";
+                        }
+
+                        updateTotalPayment();
+                    }
+
+                    function updateTotalPayment() {
+                        var shippingPrice = parseInt(document.getElementById("shipping-price").innerHTML);
+                        var totalHarga = parseInt(<?php echo $totalHarga; ?>);
+                        var totalPayment = totalHarga + shippingPrice;
+                        document.getElementById("total-payment").innerHTML = totalPayment;
+                    }
+
+                    document.getElementById("delivery-select").addEventListener("change", function () {
+                        SetShippingPrice();
+                        var shippingPrice = document.getElementById("shipping-price").innerHTML;
+
+                        document.getElementById("hidden-shipping-price").value = shippingPrice;
+                    });
+                </script>
+
+                    <span class="login100-form-title p-b-0">
+                    <div class="navbar">
+                            <a href="home.php" class="navbar-item">
+                                <i class="navbar-icon fa fa-home"></i>
+                                <br>Home
+                            </a>
+                            <a href="history.php" class="navbar-item">
+                                <i class="navbar-icon fa fa-history"></i>
+                                <br>History
+                            </a>
+                            <a href="keranjang.php" class="navbar-item">
+                                <i class="navbar-icon"><img src="images/ker.jpg" style="width: 23px;"></i>
+                                <br>Cart
+                            </a>
+                            <a href="account.php" class="navbar-item">
+                                <i class="navbar-icon fa fa-user"></i>
+                                <br>Account
+                            </a>
+                        </div>
+   
+    <div id="dropDownSelect1"></div>
+
+    <!--===============================================================================================-->
+    <script src="vendor/jquery/jquery-3.2.1.min.js"></script>
+    <!--===============================================================================================-->
+    <script src="vendor/animsition/js/animsition.min.js"></script>
+    <!--===============================================================================================-->
+    <script src="vendor/bootstrap/js/popper.js"></script>
+    <script src="vendor/bootstrap/js/bootstrap.min.js"></script>
+    <!--===============================================================================================-->
+    <script src="vendor/select2/select2.min.js"></script>
+    <!--===============================================================================================-->
+    <script src="vendor/daterangepicker/moment.min.js"></script>
+    <script src="vendor/daterangepicker/daterangepicker.js"></script>
+    <!--===============================================================================================-->
+    <script src="vendor/countdowntime/countdowntime.js"></script>
+    <!--===============================================================================================-->
+    <script src="js/main.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+
+</body>
+
+</html>

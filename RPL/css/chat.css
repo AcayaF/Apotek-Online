@@ -1,0 +1,43 @@
+body {
+    font-family: Arial, sans-serif;
+}
+
+h1 {
+    color: #333;
+}
+
+.chat-container {
+    border: 1px solid #ccc;
+    padding: 10px;
+    height: 515px;
+    overflow-y: scroll;
+}
+
+.message {
+    margin-bottom: 10px;
+}
+
+.message .sender {
+    font-weight: bold;
+}
+
+.message .content {
+    margin-top: 5px;
+}
+
+.input-container {
+    margin-top: 20px;
+}
+
+.input-container input[type="text"] {
+    width: 80%;
+    padding: 5px;
+}
+
+.input-container input[type="submit"] {
+    background-color: #2478ed;
+    color: white;
+    padding: 5px 15px;
+    border: none;
+    cursor: pointer;
+}

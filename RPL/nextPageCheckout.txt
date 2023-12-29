@@ -1,0 +1,104 @@
+<?php
+session_start();
+
+if (!isset($_SESSION['status']) || $_SESSION['status'] !== 'login') {
+    header("Location: login.php");
+    exit();
+}
+
+$id_user = $_SESSION['id_user'];
+$idBayar=1;
+
+include_once('auth/koneksi.php');
+    global $mysqli;
+
+    $query1="SELECT id_pembayaran FROM tb_transaksi WHERE id_pembayaran IN ($idBayar)";
+    $result1=$mysqli->query($query1);
+    if($result1->num_rows != 0){
+        $idBayar=$idBayar+1;
+        $query1="SELECT id_pembayaran FROM tb_transaksi WHERE id_pembayaran IN ($idBayar)";
+        $result1=$mysqli->query($query1);  
+    }
+if(isset($_POST['c'])){
+    
+
+    $name = $_POST['name'];
+    $phone = $_POST['phone'];
+    $address = $_POST['address'];
+    $harga = $_POST['harga-per-satuan'];
+    $ongkir = $_POST['hidden-shipping-price'];
+    $totalBayar = $_POST['harga-per-satuan']+$_POST['hidden-shipping-price'];
+
+    $kodeObat = $_POST['kodeObat'];
+    $jmlItem = $_POST['jmlItem'];
+    $hargaObat = $_POST['hargaObat'];
+  
+    $jumlah_KO = count($kodeObat);
+
+    for ($i = 0; $i < $jumlah_KO; $i++) {
+  
+        global $mysqli;
+
+        $query="INSERT INTO tb_transaksi(id_transaksi, id_user, name, phone_number, address, kode_obat, jml_obat, tanggal_transaksi, id_pembayaran, biaya_ongkir, diskon, total_pembayaran, metode_pembayaran, status) values(NULL, '$id_user', '$name', '$phone', '$address', '$kodeObat[$i]', '$jmlItem[$i]', NOW(), '$idBayar', '$ongkir', '0', '$totalBayar', 'Transfer Bank', 'selesai')";
+        mysqli_query($mysqli, $query);
+        // echo $kodeObat[$i] . "<br>";
+        // echo $jmlItem[$i] . "<br><br>";
+    }
+
+
+    
+    // foreach ($kodeObat as $ko) {
+    //     echo $ko . "<br>";
+    // }
+
+    // nextPage.php
+    
+    // if (isset($_POST['idCheckout'])) {
+    //     $idCheckout = json_decode(urldecode($_POST['idCheckout']), true);
+        
+    //     // Lakukan operasi yang Anda inginkan dengan $idCheckout
+    //     // ...
+        
+    //     // Contoh: Menampilkan nilai $idCheckout
+    //     echo "ID Checkout: ";
+    //     print_r($idCheckout);
+    // } else {
+    //     echo "ID Checkout tidak ditemukan.";
+    // }
+    // $items = isset($_GET['items']) ? json_decode(urldecode($_GET['items'])) : [];
+
+    // // Menggunakan koneksi ke database yang relevan
+    // include_once('auth/koneksi.php');
+
+    // // Mengonversi array items menjadi string yang dapat digunakan dalam klausa WHERE
+    // $itemIds = implode(",", $items);
+
+    // // Query SELECT dengan kondisi WHERE id=$items
+    // $query = "SELECT * FROM tb_keranjang INNER JOIN tb_obat ON tb_keranjang.kode_obat = tb_obat.kode_obat WHERE id_user='$id_user' AND id_keranjang IN ($itemIds) AND status = 'belum dibeli'";
+    // $result = $mysqli->query($query);
+
+    // // Memproses hasil query
+    // if ($result) {
+    //     // Jika ada hasil yang ditemukan
+    //     if ($result->num_rows > 0) {
+    //         while ($row = $result->fetch_assoc()) {
+    //             // Lakukan pemrosesan data dari setiap baris
+    //             echo $row['nama_obat'].'<br>';
+    //             // $nama = $row['nama'];
+    //             // ...
+    //         }
+    //     } else {
+    //         // Jika tidak ada hasil yang ditemukan
+    //         echo "Tidak ada data yang ditemukan.";
+    //     }
+    // } else {
+    //     // Jika terjadi kesalahan saat menjalankan query
+    //     echo "Error: " . $mysqli->error;
+    // }
+}
+?>
+
+
+
+<!-- $query2="INSERT INTO tb_transaksi VALUES('', '$id_user', 'user1', '087547576645', 'Surabaya', '$row['kode_obat']', NOW(), ,'$id_pembayaran', '', '$totalHarga', 'cash', 'belum selesai')";
+                        $result2=$mysqli->query($query2); -->

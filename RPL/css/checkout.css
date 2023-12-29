@@ -1,0 +1,153 @@
+body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0px;
+    overflow: hidden;
+    background-color: #f5f5f5
+}
+
+html {
+    height: 100%;
+    overflow: hidden;
+}
+
+.product-list {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    max-height: 375px;
+    overflow-y: scroll;
+}
+
+.product-card {
+    width: 100%;
+    /* Ubah lebar produk sesuai kebutuhan Anda */
+    margin-bottom: 15px;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    margin-right: 15px;
+    background-color: #f5f5f5;
+}
+
+.product-image {
+    width: 100px;
+    height: 100px;
+    margin-right: 10px;
+    margin-left: 5px;
+}
+
+.product-info {
+    flex: 1;
+}
+
+.product-title {
+    font-weight: bold;
+    margin-bottom: 5px;
+}
+
+.product-price {
+    color: #888;
+}
+
+.navbar {
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    display: flex;
+    background-color: #fff;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 0;
+    box-shadow: 0px -2px 0px rgba(29, 28, 28, 0.192);
+}
+
+.navbar-item {
+    color: #000;
+    /* Warna teks */
+    text-decoration: none;
+}
+
+.navbar-item i {
+    color: #000;
+    /* Warna ikon */
+}
+
+.container {
+    max-width: 600px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+h2 {
+    margin-bottom: 20px;
+}
+
+label {
+    display: block;
+    margin-bottom: 5px;
+}
+
+input[type="text"],
+input[type="number"],
+select {
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 15px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+}
+
+.payment-details {
+    margin-top: 25px;
+    border-top: 1px solid #ccc;
+    padding-top: 10px;
+}
+
+.payment-details table {
+    width: 100%;
+}
+
+.payment-details td {
+    padding: 5px;
+}
+
+.payment-details .total-row {
+    font-weight: bold;
+}
+
+.product-box {
+    display: flex;
+    align-items: center;
+}
+
+.product-image img {
+    width: 100px;
+    height: 100px;
+    object-fit: cover;
+    margin-right: 10px;
+}
+
+.product-details {
+    flex: 1;
+}
+
+.product-name {
+    font-weight: bold;
+    margin-bottom: 5px;
+    text-align: left;
+}
+
+.product-price {
+    margin-bottom: 5px;
+    text-align: left;
+}
+
+.product-quantity {
+    color: gray;
+    text-align: left;
+}
